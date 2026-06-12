@@ -175,7 +175,7 @@ fn update_stco_offsets(data: &mut [u8], offset_delta: i64) {
                 None => continue,
             };
             for i in 0..entry_count {
-                let entry_offset = match (pos + 16).checked_add(i.checked_mul(4).unwrap_or(usize::MAX)) {
+                let entry_offset = match (pos + 16).checked_add(i.saturating_mul(4)) {
                     Some(offset) if offset + 4 <= data.len() => offset,
                     _ => break,
                 };
@@ -193,7 +193,7 @@ fn update_stco_offsets(data: &mut [u8], offset_delta: i64) {
                 None => continue,
             };
             for i in 0..entry_count {
-                let entry_offset = match (pos + 16).checked_add(i.checked_mul(8).unwrap_or(usize::MAX)) {
+                let entry_offset = match (pos + 16).checked_add(i.saturating_mul(8)) {
                     Some(offset) if offset + 8 <= data.len() => offset,
                     _ => break,
                 };

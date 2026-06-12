@@ -3,7 +3,7 @@ use super::parser_wav::{is_wav_signature, list_chunks};
 use super::chunk_wav::WavChunk;
 
 fn write_u32_le(buffer: &mut [u8], offset: usize, value: u32) -> bool {
-    if offset.checked_add(4).map_or(true, |end| end > buffer.len()) {
+    if offset.checked_add(4).is_none_or(|end| end > buffer.len()) {
         return false;
     }
     buffer[offset] = value as u8;

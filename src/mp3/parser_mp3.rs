@@ -82,7 +82,7 @@ fn extract_string_from_frame(data: &[u8]) -> Option<String> {
 
             for chunk in content[start..].chunks(2) {
                 if chunk.len() == 2 {
-                    let ch = if content.get(0) == Some(&0xFF) {
+                    let ch = if content.first() == Some(&0xFF) {
                         chunk[0]
                     } else {
                         chunk[1]
@@ -154,17 +154,14 @@ pub fn parse_id3v2(data: &[u8]) -> Option<Id3v2Metadata> {
             b"TYER" | b"TDRC" => metadata.year = extract_string_from_frame(frame_data),
             b"TRCK" => metadata.track = extract_string_from_frame(frame_data),
             b"TCON" => metadata.genre = extract_string_from_frame(frame_data),
-            b"COMM" => {
-                if frame_data.len() > 4 {
-                    let text_data = &frame_data[4..];
-                    if let Some(null_pos) = text_data.iter().position(|&b| b == 0) {
-                        if null_pos + 1 < text_data.len() {
-                            let comment_bytes = &text_data[null_pos + 1..];
-                            let mut temp = vec![frame_data[0]];
-                            temp.extend_from_slice(comment_bytes);
-                            metadata.comment = extract_string_from_frame(&temp);
-                        }
-                    }
+            b"COMM" if frame_data.len() > 4 => {
+                let text_data = &frame_data[4..];
+                if let Some(null_pos) = text_data.iter().position(|&b| b == 0)
+                    && null_pos + 1 < text_data.len() {
+                    let comment_bytes = &text_data[null_pos + 1..];
+                    let mut temp = vec![frame_data[0]];
+                    temp.extend_from_slice(comment_bytes);
+                    metadata.comment = extract_string_from_frame(&temp);
                 }
             }
             b"TCOM" => metadata.composer = extract_string_from_frame(frame_data),
@@ -172,34 +169,31 @@ pub fn parse_id3v2(data: &[u8]) -> Option<Id3v2Metadata> {
             b"APIC" => metadata.has_picture = true,
             b"PRIV" => metadata.has_private_data = true,
             b"GEOB" => metadata.has_embedded_objects = true,
-            b"TXXX" => {
-                if frame_data.len() > 1 {
-                    let encoding = frame_data[0];
-                    let content = &frame_data[1..];
+            b"TXXX" if frame_data.len() > 1 => {
+                let encoding = frame_data[0];
+                let content = &frame_data[1..];
 
-                    let null_pos = if encoding == 0x01 || encoding == 0x02 {
-                        content.windows(2).position(|w| w == [0, 0]).map(|p| p + 2)
-                    } else {
-                        content.iter().position(|&b| b == 0).map(|p| p + 1)
-                    };
+                let null_pos = if encoding == 0x01 || encoding == 0x02 {
+                    content.windows(2).position(|w| w == [0, 0]).map(|p| p + 2)
+                } else {
+                    content.iter().position(|&b| b == 0).map(|p| p + 1)
+                };
 
-                    if let Some(sep) = null_pos {
-                        if sep < content.len() {
-                            let desc_bytes = &content[..sep - 1];
-                            let value_bytes = &content[sep..];
+                if let Some(sep) = null_pos
+                    && sep < content.len() {
+                    let desc_bytes = &content[..sep - 1];
+                    let value_bytes = &content[sep..];
 
-                            let mut desc_data = vec![encoding];
-                            desc_data.extend_from_slice(desc_bytes);
-                            let mut value_data = vec![encoding];
-                            value_data.extend_from_slice(value_bytes);
+                    let mut desc_data = vec![encoding];
+                    desc_data.extend_from_slice(desc_bytes);
+                    let mut value_data = vec![encoding];
+                    value_data.extend_from_slice(value_bytes);
 
-                            if let (Some(desc), Some(value)) = (
-                                extract_string_from_frame(&desc_data),
-                                extract_string_from_frame(&value_data),
-                            ) {
-                                metadata.custom_fields.push((desc, value));
-                            }
-                        }
+                    if let (Some(desc), Some(value)) = (
+                        extract_string_from_frame(&desc_data),
+                        extract_string_from_frame(&value_data),
+                    ) {
+                        metadata.custom_fields.push((desc, value));
                     }
                 }
             }

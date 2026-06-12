@@ -17,9 +17,7 @@ pub fn find_pdf_version(data: &[u8]) -> Option<String> {
 
     let mut version_bytes = Vec::new();
 
-    for i in 5..data.len() {
-        let byte = data[i];
-
+    for &byte in data.iter().skip(5) {
         if byte == b'\n' || byte == b'\r' {
             break;
         }
@@ -114,10 +112,9 @@ pub fn extract_info_dict(data: &[u8], obj_num: usize) -> Option<super::metadata_
             | "ModDate" | "Title" | "Subject" | "Keywords"
         );
 
-        if !is_standard && !key.is_empty() {
-            if let Some(value) = extract_pdf_string(dict_content, &format!("/{}", key)) {
-                metadata.custom.push((key.to_string(), value));
-            }
+        if !is_standard && !key.is_empty()
+            && let Some(value) = extract_pdf_string(dict_content, &format!("/{}", key)) {
+            metadata.custom.push((key.to_string(), value));
         }
 
         pos = abs_pos + 1;

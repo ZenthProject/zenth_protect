@@ -20,7 +20,7 @@ pub fn read_jpeg_segment(cur: &mut Cursor) -> Option<JpegSegment> {
     let marker = cur.read_u8()?;
 
     if marker == 0xD8 || marker == 0xD9 || marker == 0x01
-       || (marker >= 0xD0 && marker <= 0xD7) {
+        || (0xD0..=0xD7).contains(&marker) {
         return Some(JpegSegment::new(marker, Vec::new()));
     }    
     let length = cur.read_u16_be()?;

@@ -1,7 +1,7 @@
-/// Structure d'un atom MP4
-///
-/// Un atom est l'unité de base du format MP4.
-/// Chaque atom a une taille et un type (4 caractères ASCII).
+//! Structure d'un atom MP4
+//!
+//! Un atom est l'unité de base du format MP4.
+//! Chaque atom a une taille et un type (4 caractères ASCII).
 
 /// Représente un atom MP4
 #[derive(Debug, Clone)]
@@ -45,11 +45,7 @@ impl Mp4Atom {
 
     /// Taille des données (sans le header)
     pub fn data_size(&self) -> u64 {
-        if self.size > self.header_size as u64 {
-            self.size - self.header_size as u64
-        } else {
-            0
-        }
+        self.size.saturating_sub(self.header_size as u64)
     }
 
     /// Vérifie si c'est un atom conteneur (peut avoir des sous-atoms)

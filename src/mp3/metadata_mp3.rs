@@ -166,8 +166,8 @@ impl Mp3Metadata {
     }
 
     pub fn has_metadata(&self) -> bool {
-        self.id3v2.as_ref().map_or(false, |m| m.has_metadata())
-            || self.id3v1.as_ref().map_or(false, |m| m.has_metadata())
+        self.id3v2.as_ref().is_some_and(|m| m.has_metadata())
+            || self.id3v1.as_ref().is_some_and(|m| m.has_metadata())
             || self.has_ape_tag
     }
 }

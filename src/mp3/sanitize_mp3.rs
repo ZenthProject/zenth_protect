@@ -21,16 +21,15 @@ fn find_ape_tag(data: &[u8]) -> Option<(usize, usize)> {
     let search_start = search_end.saturating_sub(32);
 
     for i in (search_start..search_end).rev() {
-        if i + 8 <= data.len() && &data[i..i + 8] == b"APETAGEX" {
-            if i + 16 <= data.len() {
-                let size = (data[i + 12] as usize)
-                    | ((data[i + 13] as usize) << 8)
-                    | ((data[i + 14] as usize) << 16)
-                    | ((data[i + 15] as usize) << 24);
-                let tag_size = size + 32;
-                let tag_start = i.saturating_sub(size);
-                return Some((tag_start, tag_size));
-            }
+        if i + 8 <= data.len() && &data[i..i + 8] == b"APETAGEX"
+            && i + 16 <= data.len() {
+            let size = (data[i + 12] as usize)
+                | ((data[i + 13] as usize) << 8)
+                | ((data[i + 14] as usize) << 16)
+                | ((data[i + 15] as usize) << 24);
+            let tag_size = size + 32;
+            let tag_start = i.saturating_sub(size);
+            return Some((tag_start, tag_size));
         }
     }
     None
@@ -48,10 +47,9 @@ pub fn sanitize_mp3(data: &[u8]) -> Result<Vec<u8>> {
         audio_end -= 128;
     }
 
-    if let Some((ape_start, _)) = find_ape_tag(data) {
-        if ape_start < audio_end && ape_start >= audio_start {
-            audio_end = ape_start;
-        }
+    if let Some((ape_start, _)) = find_ape_tag(data)
+        && ape_start < audio_end && ape_start >= audio_start {
+        audio_end = ape_start;
     }
 
     if audio_start >= audio_end {

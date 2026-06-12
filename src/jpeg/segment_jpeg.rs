@@ -45,6 +45,6 @@ fn is_standalone_marker(marker: u8) -> bool {
     marker == 0xD8      // SOI
     || marker == 0xD9   // EOI
     || marker == 0x01   // TEM
-    || (marker >= 0xD0 && marker <= 0xD7)  // RSTn
+    || (0xD0..=0xD7).contains(&marker)  // RSTn
 }
 

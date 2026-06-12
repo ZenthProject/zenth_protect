@@ -151,7 +151,7 @@ fn find_dict_end(data: &[u8], start: usize) -> Option<usize> {
 
 // --- Suppression du dictionnaire /Info ---
 
-fn remove_info_object(data: &mut Vec<u8>, obj_num: usize) {
+fn remove_info_object(data: &mut [u8], obj_num: usize) {
     let pattern = format!("{} 0 obj", obj_num);
     let obj_bytes = pattern.as_bytes();
 
@@ -170,7 +170,7 @@ fn remove_info_object(data: &mut Vec<u8>, obj_num: usize) {
 
 // --- Suppression de la référence /Info dans le trailer ---
 
-fn remove_info_from_trailer(data: &mut Vec<u8>) {
+fn remove_info_from_trailer(data: &mut [u8]) {
     let Some(trailer_pos) = rfind_bytes(data, b"trailer") else { return };
     let search_end = (trailer_pos + 2000).min(data.len());
 
@@ -187,7 +187,7 @@ fn remove_info_from_trailer(data: &mut Vec<u8>) {
 
 // --- Suppression des métadonnées XMP ---
 
-fn remove_xmp_xpacket(data: &mut Vec<u8>) {
+fn remove_xmp_xpacket(data: &mut [u8]) {
     let start_pat = b"<?xpacket begin";
     let end_pat = b"<?xpacket end";
     let close = b"?>";
@@ -208,7 +208,7 @@ fn remove_xmp_xpacket(data: &mut Vec<u8>) {
     }
 }
 
-fn remove_xmpmeta(data: &mut Vec<u8>) {
+fn remove_xmpmeta(data: &mut [u8]) {
     let start_pat = b"<x:xmpmeta";
     let end_pat = b"</x:xmpmeta>";
 
