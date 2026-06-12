@@ -1,0 +1,10 @@
+[package]
+name = "zenth_protect"
+version = "0.1.0"
+edition = "2024"
+description = "File metadata sanitizer for PNG, JPEG, PDF, MP3, MP4 and WAV formats"
+license = "MIT"
+repository = "https://github.com/YOUR_USERNAME/zenth_protect"
+authors = ["zenth"]
+
+[dependencies]
